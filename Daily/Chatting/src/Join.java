@@ -127,6 +127,47 @@ public class Join extends JFrame{
 		add(cancleBT);
 		add(new JLabel());
 		
+		Connection con=null;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		con = DriverManager.getConnection(url,"root","1234");
+		Statement stmt = con.createStatement();
+		sql= "create table if not exists user("
+				+"user_id char(15) primary key,"
+			    +"user_name varchar(16),"
+			    +"user_pw varchar(16)"
+			+")engine innoDB DEFAULT CHARSET=utf8;";
+		stmt.executeUpdate(sql);
+		sql = "create table if not exists room("
+				+"room_index int primary key auto_increment,"
+			    +"room_name varchar(20),"
+			    +"room_member int"
+			+")engine innoDB DEFAULT CHARSET=utf8; ";
+		stmt.executeUpdate(sql);
+		sql = "create table if not exists user_chat("
+				+"chat_index int ,"
+			    +"user_id char(15),"
+			    +"user_name varchar(16),"
+			    +"foreign key (chat_index) references room (room_index)"
+			+")engine innoDB DEFAULT CHARSET=utf8; "; 
+		stmt.executeUpdate(sql);
+		sql = "create table if not exists chat_list("
+				+"user_id char(15),"
+			    +"friend_id char(15),"
+				+"friend_name varchar(16),"
+			    +"foreign key(user_id) references User(user_id)"
+			+")engine innoDB DEFAULT CHARSET=utf8;";
+		stmt.executeUpdate(sql);
+		}
+		catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
 		setMid();
 		display();
 	}

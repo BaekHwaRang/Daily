@@ -46,9 +46,12 @@ update User set user_name = '테스트1' where user_id = 'user1';
 delete from chat_list where friend_id = 'kjund1';
 delete from chat_list;
 delete from user;
+delete from user_chat;
+delete from room;
 
 select * from user ;
 select * from chat_list;
+select * from room;
 select * from room;
 select * from user_chat;
 select * from Chat_list where user_id = 'kjund123';

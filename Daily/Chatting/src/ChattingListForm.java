@@ -41,7 +41,7 @@ import org.w3c.dom.events.MouseEvent;
 import com.mysql.jdbc.PreparedStatement;
 
 public class ChattingListForm extends JFrame implements ActionListener {
-	private static final String SERVER_IP = "169.254.116.139";
+	private static final String SERVER_IP = "172.16.52.46";
 	private static final int SERVER_PORT = 5000;
 	Color color;
 
@@ -97,7 +97,6 @@ public class ChattingListForm extends JFrame implements ActionListener {
 		label = new JLabel();
 		roomText = new JTextField(20);
 		table = new JTable(tableCells, colNames);
-		
 
 		list = new JList(new DefaultListModel());
 		listModel = (DefaultListModel) list.getModel();
@@ -115,7 +114,6 @@ public class ChattingListForm extends JFrame implements ActionListener {
 		makeButton.setForeground(Color.WHITE);
 		this.Link_id = id;
 		this.Link_name = name;
-		
 
 		try {
 			socket.connect(new InetSocketAddress(SERVER_IP, SERVER_PORT));
@@ -133,32 +131,35 @@ public class ChattingListForm extends JFrame implements ActionListener {
 		delButton.addActionListener(this);
 		makeButton.addActionListener(this);
 
-		
 		// listModel
+		
+		show();
 		table.addMouseListener(new java.awt.event.MouseAdapter() { // 테이블 셀 이벤트
-		    @Override
-		    public void mouseClicked(java.awt.event.MouseEvent evt) {
-		        int row = table.rowAtPoint(evt.getPoint());
-		        int col = table.columnAtPoint(evt.getPoint());
-		        if (row >= 0 && col >= 0) { // row 행 , col 열
-		        	if(model.getValueAt(row, 0)!=null) {
-		        		System.out.println(model.getValueAt(row, 1).toString());
-		        		System.out.println(f_list); // select 해서 넣을 것
-		        		System.out.println(Link_id);
-		        		System.out.println(Link_name);
-		        		System.out.println(socket.toString());
-		        		new ChattingForm(model.getValueAt(row, 1).toString(),f_list,Link_id,Link_name,socket);
-		        	}
-					
-		        	
-		        	/*
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent evt) {		
+				int row = table.rowAtPoint(evt.getPoint());
+				int col = table.columnAtPoint(evt.getPoint());
+				if (row >= 0 && col >= 0) { // row 행 , col 열
+					System.out.println(model.getValueAt(row, 0));
+					if (table.getValueAt(row, 0) != null) {
+						
+						new ChattingForm(model.getValueAt(row, 0).toString(), model.getValueAt(row, 1).toString(),
+								Link_id, Link_name, socket);
+						ChattingThread.currentThread().stop();
+						// printWriter.println("list_quit");
+						/*
+						 * try { socket.close(); } catch (IOException e) { // TODO Auto-generated catch
+						 * block e.printStackTrace(); }
+						 */
+					}
+
+					/*
 					 * if(evt.getClickCount()>=2) { System.out.println("두번누르셨군요?"); }
 					 */
-		        	
-		        }
-		    }
+
+				}
+			}
 		});
-		show();
 	}
 
 	public void show() {
@@ -235,8 +236,8 @@ public class ChattingListForm extends JFrame implements ActionListener {
 				listModel.addElement(friend_id);
 			} // 친구 추가된 리스트를 불러와 추가 chat_list 참조
 
-			sql = "select * from room where room_index = (select chat_index from user_chat where user_id= '" + Link_id
-					+ "'); ";
+			sql = "select * from room where room_index = any(select chat_index from user_chat where user_id= '"
+					+ Link_id + "'); ";
 			rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {
@@ -303,26 +304,17 @@ public class ChattingListForm extends JFrame implements ActionListener {
 		}
 		if (e.getSource() == makeButton) { // 방 리스트 추가
 			List friends = list.getSelectedValuesList();
-			friends_size = friends.size()+1;
+			friends_size = (friends.size() + 1);
 			// getSelectedValuesList() = 선택된 목록들 값 받아오기
 			String temp = friends.toString().replace("[", "");
 			temp = temp.replace("]", "");
 			temp = temp.replace(" ", "");
 			f_list = temp.split(",");
 
-			sql = "insert into room(room_name,room_member) values('" + roomText.getText() + "'," + friends.size()
-					+ ") ;";
+			sql = "insert into room(room_name,room_member) values('" + roomText.getText() + "'," + friends_size + ") ;";
 
 			Querycase = 3;
 			SQLQuery(Querycase, sql);
-
-			tableCells[Cells][0] = Integer.toString(Cells);
-			tableCells[Cells][1] = roomText.getText();
-			tableCells[Cells][2] = Integer.toString(friends.size());
-
-		}
-		if (e.getSource() == table) {
-
 		}
 	}
 
@@ -350,6 +342,7 @@ public class ChattingListForm extends JFrame implements ActionListener {
 						}
 					} else {
 						JOptionPane.showMessageDialog(null, "니 아이디잖아");
+						return;
 					}
 				}
 				if (friend_id.equals("")) {
@@ -374,15 +367,7 @@ public class ChattingListForm extends JFrame implements ActionListener {
 				sql = "select max(room_index) as room_index from room;";
 				rs = stmt.executeQuery(sql);
 				if (rs.next()) { // 방의 마지막 index를 검색하여 r_index에 삽입
-					r_index = rs.getInt("room_index");
-				}
-				try {
-					printWriter = new PrintWriter(
-							new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
-
-					printWriter.println("table:" + r_index + ":" + roomText.getText() + ":" + friends_size);
-				} catch (IOException e1) {
-					e1.printStackTrace();
+					r_index = (rs.getInt("room_index"));
 				}
 
 				StringBuffer sb = new StringBuffer(); // 채팅방에 들어갈 선택된 친구들을 채팅유저 테이블에 삽입
@@ -394,19 +379,19 @@ public class ChattingListForm extends JFrame implements ActionListener {
 				sql = "select user_id ,user_name from user where user_id =" + sb.toString() + " ;";
 
 				rs = stmt.executeQuery(sql);
-				sql = "INSERT into user_chat (user_id, user_name , chat_index) values(?, ?, ?);";
+				sql = "INSERT into user_chat (user_id, user_name,chat_index) values(?, ?, ?);";
 
-				PreparedStatement ps = null;
+				java.sql.PreparedStatement ps = null;
 				while (rs.next()) { // 친구 아이디
-					ps = (PreparedStatement) con.prepareStatement(sql);
-
+					ps = con.prepareStatement(sql);
+					System.out.println(r_index);
 					ps.setString(1, rs.getString("user_id"));
 					ps.setString(2, rs.getString("user_name"));
 					ps.setInt(3, r_index);
 					ps.executeUpdate();
 					ps.clearParameters();
 				}
-				ps = (PreparedStatement) con.prepareStatement(sql);
+				ps = con.prepareStatement(sql);
 				ps.setString(1, Link_id); // 자기 아이디
 				ps.setString(2, Link_name);
 				ps.setInt(3, r_index);
@@ -419,6 +404,15 @@ public class ChattingListForm extends JFrame implements ActionListener {
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
+		try {
+			printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8),
+					true);
+
+			printWriter.println("table:" + r_index + ":" + roomText.getText() + ":" + friends_size);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		roomText.setText("");
 	}
 
 	private class ChattingThread extends Thread {
@@ -440,19 +434,30 @@ public class ChattingListForm extends JFrame implements ActionListener {
 
 				while (true) { //
 					String msg = br.readLine();
-					System.out.println(msg);
 					String tokens[] = msg.split(":");
+					if (tokens[0].equals("join")) {
+						System.out.println(tokens[1] + "님이 접속 하셨습니다.");
+					}
 					if (tokens[0].equals("table")) {
-						sql = "select * from user_chat where user_id = '" + Link_id + "' or chat_index = '" + tokens[1]
+						System.out.println("msg = " + msg);
+						System.out.println("tokens[1] = " + tokens[1]);
+						sql = "select * from user_chat where user_id = '" + Link_id + "' and chat_index = '" + tokens[1]
 								+ "' Limit 1 ;";
 						rs = stmt.executeQuery(sql);
+						Cells = 0;
+						for(int i=0; i<tableCells.length;i++) {
+							if(tableCells[i][0]== null) {
+								Cells=i;
+								break;
+							}
+						}
+						System.out.println("Cells = "+Cells);
 						while (rs.next()) { // 로그인 ID와 생성된 방 리스트 번호가 들어있을 때 UI방 생성
 							System.out.println("테이블 전송 완료");
 							tableCells[Cells][0] = tokens[1];
 							tableCells[Cells][1] = tokens[2];
 							tableCells[Cells][2] = tokens[3];
 							model.addRow(tableCells);
-							Cells++;
 						}
 					}
 				}
@@ -466,6 +471,10 @@ public class ChattingListForm extends JFrame implements ActionListener {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 		}
+		
+		
 	}
+	
 }

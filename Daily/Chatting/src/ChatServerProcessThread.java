@@ -10,6 +10,7 @@ import java.util.List;
 public class ChatServerProcessThread extends Thread{
     private String nickname = null;
     private Socket socket = null;
+    private String index= "";
     List<PrintWriter> listWriters = null;
 
     public ChatServerProcessThread(Socket socket, List<PrintWriter> listWriters) {
@@ -27,7 +28,7 @@ public class ChatServerProcessThread extends Thread{
 
             while(true) {
                 String request = buffereedReader.readLine();
-
+System.out.println("request =" +request);
                 if( request == null) {
                     consoleLog("클라이언트로부터 연결 끊김");
                     doQuit(printWriter);
@@ -35,18 +36,26 @@ public class ChatServerProcessThread extends Thread{
                 }
 
                 String[] tokens = request.split(":");
+              
                 if("table".equals(tokens[0])) {
                 	broadcast(request);
-                	System.out.println("server(table):"+tokens[1]);
                 }
-                if("chatting-join".equals(tokens[0])) {
-                	broadcast(tokens[1]);
+                if("list_quit".equals(request)) {
+                	removeWriter(printWriter);
                 }
+
                 if("join".equals(tokens[0])) {
                     doJoin(tokens[1], printWriter);
                 }
+                if("chatting-join".equals(tokens[0])) {
+                	this.index = tokens[1];
+                	chatJoin(tokens[2], printWriter);
+                	
+                	System.out.println(index);
+                }
                 else if("sendMassage".equals(tokens[0])) {
-                    doMessage(tokens[1]);
+                	System.out.println(tokens[1]+tokens[2]);
+                    doMessage(tokens[0]+":"+index+":"+nickname+":"+tokens[2]);
                 }
                 else if("quit".equals(tokens[0])) {
                     doQuit(printWriter);
@@ -72,17 +81,30 @@ public class ChatServerProcessThread extends Thread{
     }
 
     private void doMessage(String data) {
-        broadcast(this.nickname + ":" + data);
+        broadcast(data);
     }
 
     private void doJoin(String nickname, PrintWriter writer) {
         this.nickname = nickname;
 
-        String data = nickname + "님이 접속하셨습니다.";
+        String data = "join:"+nickname;
+        System.out.println("data="+data);
+        addWriter(writer);
         broadcast(data);
 
         // writer pool에 저장
+        
+    }
+    private void chatJoin(String nickname, PrintWriter writer) {
+        this.nickname = nickname;
+
+        String data = "chatjoin:"+index+":"+nickname;
+        System.out.println("data="+data);
         addWriter(writer);
+        broadcast(data);
+
+        // writer pool에 저장
+        
     }
 
     private void addWriter(PrintWriter writer) {
