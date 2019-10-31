@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Vector;
 import java.sql.*;
 
 import javax.swing.DefaultListModel;
@@ -41,7 +42,7 @@ import org.w3c.dom.events.MouseEvent;
 import com.mysql.jdbc.PreparedStatement;
 
 public class ChattingListForm extends JFrame implements ActionListener {
-	private static final String SERVER_IP = "172.16.52.46";
+	private static final String SERVER_IP = "169.254.116.139";
 	private static final int SERVER_PORT = 5000;
 	Color color;
 
@@ -142,7 +143,7 @@ public class ChattingListForm extends JFrame implements ActionListener {
 				if (row >= 0 && col >= 0) { // row 행 , col 열
 					System.out.println(model.getValueAt(row, 0));
 					if (table.getValueAt(row, 0) != null) {
-						
+						System.out.println(model.getValueAt(row, 0)+"/"+model.getValueAt(row, 1)+"/"+model.getValueAt(row, 2));
 						new ChattingForm(model.getValueAt(row, 0).toString(), model.getValueAt(row, 1).toString(),
 								Link_id, Link_name, socket);
 						ChattingThread.currentThread().stop();
@@ -454,10 +455,19 @@ public class ChattingListForm extends JFrame implements ActionListener {
 						System.out.println("Cells = "+Cells);
 						while (rs.next()) { // 로그인 ID와 생성된 방 리스트 번호가 들어있을 때 UI방 생성
 							System.out.println("테이블 전송 완료");
-							tableCells[Cells][0] = tokens[1];
-							tableCells[Cells][1] = tokens[2];
-							tableCells[Cells][2] = tokens[3];
-							model.addRow(tableCells);
+							/*
+							 * tableCells[Cells][0] = tokens[1]; tableCells[Cells][1] = tokens[2];
+							 * tableCells[Cells][2] = tokens[3];
+							 */
+							Vector row = new Vector();
+							row.add(tokens[1]);
+							row.add(tokens[2]);
+							row.add(tokens[3]);
+							model.insertRow(Cells, row);
+							table.setValueAt(tokens[1], Cells, 0);
+							table.setValueAt(tokens[2], Cells, 1);
+							table.setValueAt(tokens[3], Cells, 2);
+							System.out.println();
 						}
 					}
 				}

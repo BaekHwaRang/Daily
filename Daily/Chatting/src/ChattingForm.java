@@ -11,6 +11,8 @@ import java.awt.TextArea;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
@@ -35,7 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public class ChattingForm extends JFrame implements ActionListener {
+public class ChattingForm extends JFrame {
 
 	Color color;
 	Color color2;
@@ -56,7 +58,7 @@ public class ChattingForm extends JFrame implements ActionListener {
 
 	String url = "jdbc:mysql:///Daily?serverTimezone=Asia/Seoul";
 	String sql;
-	
+
 	Socket socket;
 	private String Link_id;
 	private String Link_name;
@@ -64,8 +66,8 @@ public class ChattingForm extends JFrame implements ActionListener {
 	String title;
 	String[] FriendList;
 
-
 	PrintWriter printWriter;
+
 	public ChattingForm(String index, String title, String id, String name, Socket socket) {
 		color = new Color(243, 218, 232); // 위 아래 색깔 (바꿔도 돼요)
 		color2 = new Color(255, 250, 251); // 채팅창 바탕 색깔 (바꿔도 돼요)
@@ -75,8 +77,8 @@ public class ChattingForm extends JFrame implements ActionListener {
 		textpanel = new JPanel();
 		buttonSend = new JButton("전송");
 		textField = new JTextField();
-		label = new JLabel("방 제목",JLabel.CENTER);
-		label2 = new JLabel("백화랑,유성재,전웅재,장주리,원윤희",JLabel.CENTER);
+		label = new JLabel("방 제목", JLabel.CENTER);
+		label2 = new JLabel("백화랑,유성재,전웅재,장주리,원윤희", JLabel.CENTER);
 		textArea = new JTextArea(30, 80);
 
 		this.socket = socket;
@@ -84,6 +86,8 @@ public class ChattingForm extends JFrame implements ActionListener {
 		this.Link_name = name;
 		this.title = title;
 		this.index = index;
+		System.out.println(
+				"Link_id:" + Link_id + "\t Link_name:" + Link_name + "\t title:" + title + "\t index:" + index);
 
 		show();
 		new ChatFormThread(socket).start(); // 클라이언트 스레드 시작
@@ -98,15 +102,36 @@ public class ChattingForm extends JFrame implements ActionListener {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			con = DriverManager.getConnection(url, "root", "1234");
-			Statement stmt = con.createStatement();
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		buttonSend.addActionListener(this);
+		buttonSend.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				inputEvent();
+			}
+		});
+		textField.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				if(e.getKeyCode() == KeyEvent.VK_ENTER)
+				inputEvent();
+
+			}
+		});
 
 	}
 
@@ -153,15 +178,16 @@ public class ChattingForm extends JFrame implements ActionListener {
 		frame.addWindowListener(new WindowAdapter() { // 창 x키 누르면 닫히는거
 			public void windowClosing(WindowEvent e) {
 				try {
-					printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
-	                String request = "quit\r\n";
-	                printWriter.println(request);
-	                System.exit(1);
+					printWriter = new PrintWriter(
+							new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
+					String request = "quit\r\n";
+					printWriter.println(request);
+					System.exit(1);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
+
 			}
 		});
 
@@ -181,25 +207,50 @@ public class ChattingForm extends JFrame implements ActionListener {
 		int top = (screen.height / 2) - (500 / 2);
 
 		setLocation(left, top);
+
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			con = DriverManager.getConnection(url, "root", "1234");
+			Statement stmt = con.createStatement();
+
+			sql = "select user_name,user_text from chatting where chatting_index = " + index + " ;";
+			rs = stmt.executeQuery(sql);
+
+			while (rs.next()) {
+				textArea.append(rs.getString("user_name") + ":" + rs.getString("user_text"));
+				textArea.append("\n");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		if (e.getSource() == buttonSend) {
-			try {
-				printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8),
-						true);
-				if (textField.getText().equals("")) {
-					JOptionPane.showMessageDialog(null, "채팅칸이 빈칸입니다.");
-				} else {
-					printWriter.println("sendMassage:"+index+":"+ textField.getText());
-					textField.setText("");
-				}
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+	private void inputEvent() {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			con = DriverManager.getConnection(url, "root", "1234");
+			Statement stmt = con.createStatement();
+			printWriter = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8),
+					true);
+			if (textField.getText().equals("")) {
+				JOptionPane.showMessageDialog(null, "채팅칸이 빈칸입니다.");
+			} else {
+				printWriter.println("sendMassage:" + index + ":" + textField.getText());
+				sql = "insert into chatting values(" + index + ",'" + Link_name + "','" + textField.getText() + "')";
+				stmt.executeUpdate(sql);
+
+				textField.setText("");
 			}
+		} catch (ClassNotFoundException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -214,9 +265,9 @@ public class ChattingForm extends JFrame implements ActionListener {
 		public void run() {
 			try {
 				Class.forName("com.mysql.jdbc.Driver");
-				con = DriverManager.getConnection(url,"root","1234");
+				con = DriverManager.getConnection(url, "root", "1234");
 				stmt = con.createStatement();
-				
+
 				BufferedReader br = new BufferedReader(
 						new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
 				while (true) {
