@@ -26,7 +26,7 @@ public class Login extends JFrame implements Runnable {
 	JLabel startView = new JLabel(new ImageIcon("image/effect.png"));
 	JLabel bg = new JLabel(new ImageIcon("image/effect.png"));
 
-	String url = "jdbc:mysql://172.16.52.46:3306/Daily?serverTimezone=Asia/Seoul";
+	String url = "jdbc:mysql:///Daily?serverTimezone=Asia/Seoul";
 	String name;
 
 	Login() {

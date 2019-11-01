@@ -46,7 +46,7 @@ public class Join extends JFrame{
 			"제3조(약관의 규정 외 사항에 관한 준칙)\r\n" + 
 			"이 약관에 규정 되지 않은 사항과 이 약관의 해석에 대해서는 회사가 정한 개별 서비스 이용약\r\n" + 
 			"관, 운영정책 및 관계법령이 적용됩니다.");
-	String url = "jdbc:mysql://172.16.52.46:3306/Daily?serverTimezone=Asia/Seoul";
+	String url = "jdbc:mysql:///Daily?serverTimezone=Asia/Seoul";
 	String sql;
 	Join()
 	{

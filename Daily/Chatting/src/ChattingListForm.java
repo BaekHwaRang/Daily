@@ -42,7 +42,7 @@ import org.w3c.dom.events.MouseEvent;
 import com.mysql.jdbc.PreparedStatement;
 
 public class ChattingListForm extends JFrame implements ActionListener {
-	private static final String SERVER_IP = "172.16.52.46";
+	private static final String SERVER_IP = "169.254.116.139";
 	private static final int SERVER_PORT = 5000;
 	Color color;
 
@@ -78,7 +78,7 @@ public class ChattingListForm extends JFrame implements ActionListener {
 
 	Connection con = null;
 	String sql;
-	String url = "jdbc:mysql://172.16.52.46:3306/Daily?serverTimezone=Asia/Seoul";
+	String url = "jdbc:mysql:///Daily?serverTimezone=Asia/Seoul";
 	String Link_id;
 	String Link_name;
 	String friend_id = "";
