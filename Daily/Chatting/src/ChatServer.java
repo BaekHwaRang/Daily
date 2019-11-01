@@ -18,7 +18,7 @@ public class ChatServer {
 
 	public static void main(String[] args) {
 		Connection con = null;
-		String url = "jdbc:mysql:///Daily?serverTimezone=Asia/Seoul";
+		String url = "jdbc:mysql://172.16.52.46:3306/Daily?serverTimezone=Asia/Seoul";
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			con = DriverManager.getConnection(url,"root","1234");

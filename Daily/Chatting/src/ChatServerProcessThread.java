@@ -15,14 +15,12 @@ public class ChatServerProcessThread<E> extends Thread {
 	private String index = "";
 	List<PrintWriter> listWriters = null;
 	UserCheck check;
-	
+
 	public ChatServerProcessThread(Socket socket, List<PrintWriter> listWriters) {
 		this.socket = socket;
 		this.listWriters = listWriters;
 		check = new UserCheck();
 	}
-
-	
 
 	@Override
 	public void run() {
@@ -35,26 +33,23 @@ public class ChatServerProcessThread<E> extends Thread {
 
 			while (true) {
 				String request = buffereedReader.readLine();
-				System.out.println("request =" + request);
-				if (request == null) {
+				/*if (request == null) {
 					consoleLog("클라이언트로부터 연결 끊김");
 					doQuit(printWriter);
 					break;
-				}
+				}*/
 
 				String[] tokens = request.split(":");
-				System.out.println("tokens[0]="+tokens[0]);
+				System.out.println("tokens[0]=" + tokens[0]);
 				if ("table".equals(tokens[0])) {
 					broadcast(request);
-				}
-				if ("list_quit".equals(request)) {
+				} else if ("list_quit".equals(request)) {
 					removeWriter(printWriter);
 				}
 
-				if ("join".equals(tokens[0])) {
+				else if ("join".equals(tokens[0])) {
 					doJoin(tokens[1], printWriter);
-				}
-				if ("chatting-join".equals(tokens[0])) {
+				} else if ("chatting-join".equals(tokens[0])) {
 					this.index = tokens[1];
 					chatJoin(tokens[2], printWriter);
 
@@ -62,27 +57,26 @@ public class ChatServerProcessThread<E> extends Thread {
 					System.out.println(tokens[1] + tokens[2]);
 					doMessage(tokens[0] + ":" + tokens[1] + ":" + nickname + ":" + tokens[2]);
 				} else if ("quit".equals(tokens[0])) {
-					doQuit(printWriter);
-				}
-				if("bye".equals(tokens[0])) {
-					broadcast("bye:"+tokens[1]);
+					doQuit(printWriter,tokens[1]);
+				} else if ("bye".equals(tokens[0])) {
+					broadcast("bye:" + tokens[1]);
 					removeWriter(printWriter);
 				}
 			}
 		} catch (IOException e) {
 			consoleLog(this.nickname + "님이 접속을 종료하셨습니다.");
 
-		}finally {
+		} finally {
 			check.Check_delete(this.nickname);
 		}
 	}
 
-	private void doQuit(PrintWriter writer) {
-		removeWriter(writer);
+	private void doQuit(PrintWriter writer,String tokens) {
 
-		String data = "quit:"+index+":"+this.nickname +"님이 퇴장했습니다.";
-		
+		String data = "quit:" + tokens + ":" + this.nickname + "님이 퇴장했습니다.";
+
 		broadcast(data);
+		// removeWriter(writer);
 	}
 
 	private void removeWriter(PrintWriter writer) {
@@ -112,7 +106,7 @@ public class ChatServerProcessThread<E> extends Thread {
 
 		String data = "chatjoin:" + index + ":" + nickname;
 		System.out.println("data=" + data);
-		addWriter(writer);
+		 addWriter(writer);
 		broadcast(data);
 
 		// writer pool에 저장
@@ -126,12 +120,12 @@ public class ChatServerProcessThread<E> extends Thread {
 	}
 
 	private void broadcast(String data) {
-		//synchronized (listWriters) {
+		synchronized (listWriters) {
 			for (PrintWriter writer : listWriters) {
 				writer.println(data);
 				writer.flush();
 			}
-		//}
+		}
 	}
 
 	private void consoleLog(String log) {

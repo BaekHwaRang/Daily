@@ -25,7 +25,7 @@ public class UserCheck {
 	private void Queryexecute(String sql) {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			con = DriverManager.getConnection("jdbc:mysql:///172.16.52.46:3306/Daily?serverTimezone=Asia/Seoul","root","1234");
+			con = DriverManager.getConnection("jdbc:mysql://172.16.52.46:3306/Daily?serverTimezone=Asia/Seoul","root","1234");
 			Statement stmt = con.createStatement();
 			stmt.executeUpdate(sql);
 			

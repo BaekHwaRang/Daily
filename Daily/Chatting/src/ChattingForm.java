@@ -56,7 +56,7 @@ public class ChattingForm extends JFrame {
 	PreparedStatement ps;
 	ResultSet rs;
 
-	String url = "jdbc:mysql:///172.16.52.46:3306/Daily?serverTimezone=Asia/Seoul";
+	String url = "jdbc:mysql://172.16.52.46:3306/Daily?serverTimezone=Asia/Seoul";
 	String sql;
 
 	Socket socket;
@@ -86,7 +86,6 @@ public class ChattingForm extends JFrame {
 		this.Link_name = name;
 		this.title = title;
 		this.index = index;
-		System.out.println("FormTest/"+socket.toString()+"/"+Link_id+"/"+Link_name+"/"+index);
 
 		show();
 		new ChatFormThread(socket).start(); // 클라이언트 스레드 시작
@@ -177,7 +176,7 @@ public class ChattingForm extends JFrame {
 				try {
 					printWriter = new PrintWriter(
 							new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
-					String request = "quit\r\n";
+					String request = "quit:"+index;
 					printWriter.println(request);
 					dispose();
 				} catch (IOException e1) {
@@ -272,22 +271,15 @@ public class ChattingForm extends JFrame {
 					String tokens[] = msg.split(":");
 					System.out.println("chatting message : " + msg);
 					if (tokens[1].equals(index)) {
-						if (tokens[0].equals("message")) {
-
-						}
 						if (tokens[0].equals("quit")) {
-							textArea.append(tokens[2]);
-							textArea.append("\n");
+							textArea.append(tokens[2]+"\n");
 						}
-						if (tokens[0].equals("chatjoin")) {
-							textArea.append(tokens[2] + "님이 채팅방에 참가하셨습니다.");
-							textArea.append("\n");
+						else if (tokens[0].equals("chatjoin")) {
+							textArea.append(tokens[2] + "님이 채팅방에 참가하셨습니다.\n");
 						}
-						if (tokens[0].equals("sendMassage")) {
-							System.out.println("동작");
+						else if (tokens[0].equals("sendMassage")) {
 							System.out.println(tokens[2]+"/"+tokens[3]);
-							textArea.append(tokens[2] + ":" + tokens[3]);
-							textArea.append("\n");
+							textArea.append(tokens[2] + ":" + tokens[3]+"\n");
 						}
 					}
 				}

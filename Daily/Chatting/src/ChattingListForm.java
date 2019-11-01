@@ -78,7 +78,7 @@ public class ChattingListForm extends JFrame implements ActionListener {
 
 	Connection con = null;
 	String sql;
-	String url = "jdbc:mysql:///172.16.52.46:3306/Daily?serverTimezone=Asia/Seoul";
+	String url = "jdbc:mysql://172.16.52.46:3306/Daily?serverTimezone=Asia/Seoul";
 	String Link_id;
 	String Link_name;
 	String friend_id = "";
@@ -466,18 +466,17 @@ public class ChattingListForm extends JFrame implements ActionListener {
 						System.out.println(tokens[1] + "님이 접속 하셨습니다.");
 						listModel2.addElement(tokens[1]);
 					}
-					if(tokens[0].equals("bye")) {
+					else if(tokens[0].equals("bye")) {
 						System.out.println(tokens[1]+"나감");
 						for(int i=0; i<listModel2.size();i++) {
 							System.out.println("getElementAt = "+listModel2.getElementAt(i));
 							if(listModel2.getElementAt(i).equals(tokens[1]))
 							{
-								System.out.println("작동");
 								listModel2.remove(i);
 							}
 						}
 					}
-					if (tokens[0].equals("table")) {
+					else if (tokens[0].equals("table")) {
 						System.out.println("msg = " + msg);
 						System.out.println("tokens[1] = " + tokens[1]);
 						sql = "select * from user_chat where user_id = '" + Link_id + "' and chat_index = '" + tokens[1]
