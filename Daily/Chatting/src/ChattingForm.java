@@ -56,7 +56,7 @@ public class ChattingForm extends JFrame {
 	PreparedStatement ps;
 	ResultSet rs;
 
-	String url = "jdbc:mysql:///172.16.52.46:Daily?serverTimezone=Asia/Seoul";
+	String url = "jdbc:mysql:///172.16.52.46:3306/Daily?serverTimezone=Asia/Seoul";
 	String sql;
 
 	Socket socket;
