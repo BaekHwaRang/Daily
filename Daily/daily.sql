@@ -4,6 +4,11 @@ show databases;
 show tables;
 drop database daily;
 
+create table userCheck(
+	Login_id char(15),
+    chat_room varchar(20) Default '대기'
+);
+drop table userCheck;
 create table User(
    user_id char(15) primary key,
     user_name varchar(16),
@@ -28,6 +33,7 @@ create table Chatting(
    user_name text,
    user_text text
 )engine innoDB DEFAULT CHARSET=utf8; -- 채팅방text
+
 drop table chatting;
 create table User_chat (
    chat_index int ,
@@ -44,7 +50,10 @@ delete from chat_list;
 delete from user;
 delete from user_chat;
 delete from room;
+delete from chatting;
+delete from userCheck;
 
+select * from userCheck;
 select * from chatting;
 select * from user ;
 select * from chat_list;

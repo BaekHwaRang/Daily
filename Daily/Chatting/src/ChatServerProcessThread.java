@@ -14,12 +14,12 @@ public class ChatServerProcessThread<E> extends Thread {
 	private Socket socket = null;
 	private String index = "";
 	List<PrintWriter> listWriters = null;
-	List<User> user = null;
-
+	UserCheck check;
+	
 	public ChatServerProcessThread(Socket socket, List<PrintWriter> listWriters) {
 		this.socket = socket;
 		this.listWriters = listWriters;
-		user = new ArrayList<User>();
+		check = new UserCheck();
 	}
 
 	
@@ -43,7 +43,7 @@ public class ChatServerProcessThread<E> extends Thread {
 				}
 
 				String[] tokens = request.split(":");
-
+				System.out.println("tokens[0]="+tokens[0]);
 				if ("table".equals(tokens[0])) {
 					broadcast(request);
 				}
@@ -53,34 +53,35 @@ public class ChatServerProcessThread<E> extends Thread {
 
 				if ("join".equals(tokens[0])) {
 					doJoin(tokens[1], printWriter);
-
 				}
 				if ("chatting-join".equals(tokens[0])) {
 					this.index = tokens[1];
 					chatJoin(tokens[2], printWriter);
 
-					System.out.println(index);
 				} else if ("sendMassage".equals(tokens[0])) {
 					System.out.println(tokens[1] + tokens[2]);
-					doMessage(tokens[0] + ":" + index + ":" + nickname + ":" + tokens[2]);
+					doMessage(tokens[0] + ":" + tokens[1] + ":" + nickname + ":" + tokens[2]);
 				} else if ("quit".equals(tokens[0])) {
 					doQuit(printWriter);
+				}
+				if("bye".equals(tokens[0])) {
+					broadcast("bye:"+tokens[1]);
+					removeWriter(printWriter);
 				}
 			}
 		} catch (IOException e) {
 			consoleLog(this.nickname + "님이 접속을 종료하셨습니다.");
-			for (User point : user) {
-				if (point.getUser_id().equals(nickname))
-					user.remove(point);
-			}
 
+		}finally {
+			check.Check_delete(this.nickname);
 		}
 	}
 
 	private void doQuit(PrintWriter writer) {
 		removeWriter(writer);
 
-		String data = this.nickname + "님이 퇴장했습니다.";
+		String data = "quit:"+index+":"+this.nickname +"님이 퇴장했습니다.";
+		
 		broadcast(data);
 	}
 
@@ -101,9 +102,7 @@ public class ChatServerProcessThread<E> extends Thread {
 		System.out.println("data=" + data);
 		addWriter(writer);
 		broadcast(data);
-		User array = new User();
-		array.setUser_id(nickname);
-		user.add(array);
+		check.Check_insert(this.nickname);
 		// writer pool에 저장
 
 	}
@@ -127,12 +126,12 @@ public class ChatServerProcessThread<E> extends Thread {
 	}
 
 	private void broadcast(String data) {
-		synchronized (listWriters) {
+		//synchronized (listWriters) {
 			for (PrintWriter writer : listWriters) {
 				writer.println(data);
 				writer.flush();
 			}
-		}
+		//}
 	}
 
 	private void consoleLog(String log) {

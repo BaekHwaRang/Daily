@@ -42,7 +42,7 @@ import org.w3c.dom.events.MouseEvent;
 import com.mysql.jdbc.PreparedStatement;
 
 public class ChattingListForm extends JFrame implements ActionListener {
-	private static final String SERVER_IP = "169.254.116.139";
+	private static final String SERVER_IP = "172.16.52.46";
 	private static final int SERVER_PORT = 5000;
 	Color color;
 
@@ -64,9 +64,13 @@ public class ChattingListForm extends JFrame implements ActionListener {
 
 	JPanel listPanel;
 	JLabel listLabel;
+	JLabel listLabel2;
 	JList list;
+	JList list2;
 	DefaultListModel listModel;
+	DefaultListModel listModel2;
 	JScrollPane Listscrollpane;
+	JScrollPane Listscrollpane2;
 	JTextField listText;
 	JPanel btnPanel;
 	JButton addButton;
@@ -74,7 +78,7 @@ public class ChattingListForm extends JFrame implements ActionListener {
 
 	Connection con = null;
 	String sql;
-	String url = "jdbc:mysql:///Daily?serverTimezone=Asia/Seoul";
+	String url = "jdbc:mysql:///172.16.52.46:Daily?serverTimezone=Asia/Seoul";
 	String Link_id;
 	String Link_name;
 	String friend_id = "";
@@ -101,8 +105,12 @@ public class ChattingListForm extends JFrame implements ActionListener {
 
 		list = new JList(new DefaultListModel());
 		listModel = (DefaultListModel) list.getModel();
+		list2 = new JList(new DefaultListModel());
+	    listModel2 = (DefaultListModel) list2.getModel();
+	    
 		listPanel = new JPanel();
 		listLabel = new JLabel();
+		listLabel2 = new JLabel();
 		listText = new JTextField(9);
 		addButton = new JButton("추가");
 		delButton = new JButton("삭제");
@@ -143,10 +151,8 @@ public class ChattingListForm extends JFrame implements ActionListener {
 				if (row >= 0 && col >= 0) { // row 행 , col 열
 					System.out.println(model.getValueAt(row, 0));
 					if (table.getValueAt(row, 0) != null) {
-						System.out.println(model.getValueAt(row, 0)+"/"+model.getValueAt(row, 1)+"/"+model.getValueAt(row, 2));
 						new ChattingForm(model.getValueAt(row, 0).toString(), model.getValueAt(row, 1).toString(),
 								Link_id, Link_name, socket);
-						ChattingThread.currentThread().stop();
 						// printWriter.println("list_quit");
 						/*
 						 * try { socket.close(); } catch (IOException e) { // TODO Auto-generated catch
@@ -166,58 +172,69 @@ public class ChattingListForm extends JFrame implements ActionListener {
 	public void show() {
 
 		// label
-		label.setFont(new Font("맑은 고딕", Font.BOLD, 20));
-		label.setText("채팅방 목록");
+	      label.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+	      label.setText("채팅방 목록");
 
-		panel.setBackground(color);
-		panel.add(label);
-		frame.add(BorderLayout.NORTH, panel);
+	      panel.setBackground(color);
+	      panel.add(label);
+	      frame.add(BorderLayout.NORTH, panel);
 
-		// 방 만들기
-		bottomPanel.setBackground(color);
-		roomText.setFont(new Font("맑은 고딕", Font.BOLD, 20));
-		bottomPanel.add(roomText);
-		bottomPanel.add(makeButton);
-		frame.add(bottomPanel, BorderLayout.SOUTH);
+	      // 방 만들기
+	      bottomPanel.setBackground(color);
+	      roomText.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+	      bottomPanel.add(roomText);
+	      bottomPanel.add(makeButton);
+	      frame.add(bottomPanel, BorderLayout.SOUTH);
 
-		// table
-		table.setRowHeight(40);
-		table.getColumn("번호").setPreferredWidth(5);
-		table.getColumn("방 제목").setPreferredWidth(300);
-		table.getColumn("인원 수").setPreferredWidth(5);
-		scrollpane = new JScrollPane(table);
-		scrollpane.setPreferredSize(new Dimension(550, 500));
-		contentPane.add(scrollpane, BorderLayout.WEST);
+	      // table
+	      table.setRowHeight(40);
+	      table.getColumn("번호").setPreferredWidth(5);
+	      table.getColumn("방 제목").setPreferredWidth(300);
+	      table.getColumn("인원 수").setPreferredWidth(5);
+	      scrollpane = new JScrollPane(table);
+	      scrollpane.setPreferredSize(new Dimension(550, 500));
+	      contentPane.add(scrollpane, BorderLayout.WEST);
 
-		// list
-		listLabel.setText("친구 목록");
-		listLabel.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+	      // list
+	      listLabel2.setText("접속자 목록");
+	      listLabel2.setFont(new Font("맑은 고딕", Font.BOLD, 10));
+	      listLabel2.setPreferredSize(new Dimension(130,15));
+	      
+	      Listscrollpane2 = new JScrollPane(list2);
+	      Listscrollpane2.setPreferredSize(new Dimension(130,130));
+	      listPanel.add(listLabel2,BorderLayout.NORTH);
+	      listPanel.add(Listscrollpane2,BorderLayout.SOUTH);
+	      
+	      listLabel.setText("친구 목록");
+	      listLabel.setFont(new Font("맑은 고딕", Font.BOLD, 10));
+	      listLabel.setPreferredSize(new Dimension(130,15));
 
-		Listscrollpane = new JScrollPane(list);
-		Listscrollpane.setPreferredSize(new Dimension(130, 280));
-		listPanel.add(listLabel, BorderLayout.NORTH);
-		listPanel.add(Listscrollpane, BorderLayout.SOUTH);
+	      Listscrollpane = new JScrollPane(list);
+	      Listscrollpane.setPreferredSize(new Dimension(130, 130));
+	      listPanel.add(listLabel, BorderLayout.NORTH);
+	      listPanel.add(Listscrollpane, BorderLayout.SOUTH);
 
-		listText.setFont(new Font("맑은 고딕", Font.BOLD, 15));
-		listPanel.add(listText, BorderLayout.SOUTH);
+	      
+	      listText.setFont(new Font("맑은 고딕", Font.BOLD, 15));
+	      listPanel.add(listText, BorderLayout.SOUTH);
+	      
+	      // 친구 추가 버튼
+	      addButton.setPreferredSize(new Dimension(60, 28));
+	      addButton.setFont(new Font("맑은 고딕", Font.BOLD, 13));
+	      addButton.setBackground(Color.BLACK);
+	      addButton.setForeground(Color.WHITE);
+	      btnPanel.add(addButton, BorderLayout.WEST);
 
-		// 친구 추가 버튼
-		addButton.setPreferredSize(new Dimension(60, 28));
-		addButton.setFont(new Font("맑은 고딕", Font.BOLD, 13));
-		addButton.setBackground(Color.BLACK);
-		addButton.setForeground(Color.WHITE);
-		btnPanel.add(addButton, BorderLayout.WEST);
+	      // 친구 삭제 버튼
+	      delButton.setPreferredSize(new Dimension(60, 28));
+	      delButton.setFont(new Font("맑은 고딕", Font.BOLD, 13));
+	      delButton.setBackground(Color.RED);
+	      delButton.setForeground(Color.WHITE);
+	      btnPanel.add(delButton, BorderLayout.EAST);
 
-		// 친구 삭제 버튼
-		delButton.setPreferredSize(new Dimension(60, 28));
-		delButton.setFont(new Font("맑은 고딕", Font.BOLD, 13));
-		delButton.setBackground(Color.RED);
-		delButton.setForeground(Color.WHITE);
-		btnPanel.add(delButton, BorderLayout.EAST);
-
-		listPanel.add(btnPanel, BorderLayout.SOUTH);
-		btnPanel.setBackground(Color.WHITE);
-		listPanel.setBackground(Color.WHITE);
+	      listPanel.add(btnPanel, BorderLayout.SOUTH);
+	      btnPanel.setBackground(Color.WHITE);
+	      listPanel.setBackground(Color.WHITE);
 
 		frame.add(listPanel, BorderLayout.CENTER);
 
@@ -249,6 +266,12 @@ public class ChattingListForm extends JFrame implements ActionListener {
 			}
 			model = new DefaultTableModel(tableCells, colNames);
 			model.addRow(tableCells);
+			
+			sql = "select * from userCheck;";
+			rs = stmt.executeQuery(sql);
+			while(rs.next()){
+				listModel2.addElement(rs.getString("Login_id"));
+			}
 		} catch (ClassNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -260,6 +283,8 @@ public class ChattingListForm extends JFrame implements ActionListener {
 		// frame
 		frame.addWindowListener(new WindowAdapter() { // 창 x키 누르면 닫히는거
 			public void windowClosing(WindowEvent e) {
+				printWriter.println("bye:"+Link_id);
+				new UserCheck().Check_delete(Link_id);
 				System.exit(0);
 			}
 		});
@@ -436,8 +461,21 @@ public class ChattingListForm extends JFrame implements ActionListener {
 				while (true) { //
 					String msg = br.readLine();
 					String tokens[] = msg.split(":");
+					System.out.println("chatList_Msg\t"+msg);
 					if (tokens[0].equals("join")) {
 						System.out.println(tokens[1] + "님이 접속 하셨습니다.");
+						listModel2.addElement(tokens[1]);
+					}
+					if(tokens[0].equals("bye")) {
+						System.out.println(tokens[1]+"나감");
+						for(int i=0; i<listModel2.size();i++) {
+							System.out.println("getElementAt = "+listModel2.getElementAt(i));
+							if(listModel2.getElementAt(i).equals(tokens[1]))
+							{
+								System.out.println("작동");
+								listModel2.remove(i);
+							}
+						}
 					}
 					if (tokens[0].equals("table")) {
 						System.out.println("msg = " + msg);

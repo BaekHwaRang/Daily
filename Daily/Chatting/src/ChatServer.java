@@ -4,13 +4,32 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class ChatServer {
 	public static final int PORT = 5000;
 
 	public static void main(String[] args) {
+		Connection con = null;
+		String url = "jdbc:mysql:///Daily?serverTimezone=Asia/Seoul";
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			con = DriverManager.getConnection(url,"root","1234");
+			Statement stmt = con.createStatement();
+			String sql ="delete from userCheck;";
+			stmt.executeUpdate(sql);
+		} catch (ClassNotFoundException | SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		ServerSocket serverSocket = null;
 		List<PrintWriter> listWriters = new ArrayList<PrintWriter>();
 
