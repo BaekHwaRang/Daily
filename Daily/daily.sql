@@ -5,7 +5,7 @@ show tables;
 drop database daily;
 
 create table userCheck(
-	Login_id char(15),
+	Login_id char(15) primary key,
     chat_room varchar(20) Default '대기'
 );
 drop table userCheck;
@@ -69,3 +69,8 @@ insert into User values('user2','test2','1234');
 insert into User values('user3','test3','1234');
 insert into User values('user4','test4','1234');
 insert into User values('user5,','test5','1234');
+insert into user values('qorghkfkd','qorghkfkd','1');
+insert into user values('dbtjdwo','dbtjdwo','1');
+insert into user values('wjsdndwo','wjsdndwo','1');
+insert into user values('dnjsdbsgml','dnjsdbsgml','1');
+insert into user values('wkdwnfl','wkdwnfl','1');

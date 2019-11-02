@@ -270,6 +270,7 @@ public class ChattingListForm extends JFrame implements ActionListener {
 			sql = "select * from userCheck;";
 			rs = stmt.executeQuery(sql);
 			while(rs.next()){
+				if(!(rs.getString("Login_id").equals(Link_id)))
 				listModel2.addElement(rs.getString("Login_id"));
 			}
 		} catch (ClassNotFoundException e1) {
@@ -285,6 +286,12 @@ public class ChattingListForm extends JFrame implements ActionListener {
 			public void windowClosing(WindowEvent e) {
 				printWriter.println("bye:"+Link_id);
 				new UserCheck().Check_delete(Link_id);
+				/*
+				 * try { socket.close(); printWriter.close();
+				 * 
+				 * } catch (IOException e1) { // TODO Auto-generated catch block
+				 * e1.printStackTrace(); }
+				 */
 				System.exit(0);
 			}
 		});
