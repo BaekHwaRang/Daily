@@ -4,3 +4,5 @@
 
 예상 기능
 Login, Chatting, 독립 채팅방
+시작할 때 url 주소확인, 및 서버로 사용할 컴퓨터 IP (chattingListForm)에서 수정해주세요
+mysql url 수정할 클래스 (join, login, chattingListForm, chattingForm, chatServer, UserCheck)
