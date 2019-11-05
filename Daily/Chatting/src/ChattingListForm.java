@@ -78,7 +78,7 @@ public class ChattingListForm extends JFrame implements ActionListener {
 
 	Connection con = null;
 	String sql;
-	String url = "jdbc:mysql:///Daily?serverTimezone=Asia/Seoul";
+	String url = "jdbc:mysql:///Daily?serverTimezone=Asia/Seoul"; //mysql 저장소 url을 고쳐주세요
 	String Link_id;
 	String Link_name;
 	String friend_id = "";

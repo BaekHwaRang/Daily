@@ -18,7 +18,7 @@ public class ChatServer {
 
 	public static void main(String[] args) {
 		Connection con = null;
-		String url = "jdbc:mysql:///Daily?serverTimezone=Asia/Seoul";
+		String url = "jdbc:mysql:///Daily?serverTimezone=Asia/Seoul"; // mysql 저장소 url을 고쳐주세요
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			con = DriverManager.getConnection(url,"root","1234");
